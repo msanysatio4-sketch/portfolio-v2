@@ -1,0 +1,32 @@
+[
+  {
+    "num": "01 //",
+    "category": "WEB",
+    "title": "SISTEM ADMIN BIMBEL NAUFAL",
+    "tags": "Full-Stack / Python",
+    "year": "2026",
+    "summary": "Sistem Informasi Administrasi berbasis web, dirancang sebagai Tugas Akhir untuk mengelola data operasional Naufal Computer dan Bimbel secara terpusat.",
+    "stack": "Python, Django, HTML, CSS, MySQL",
+    "detail": "Dikembangkan untuk manajemen operasional di Desa Pagaran Jalu-Jalu. Menggunakan kerangka kerja Django yang solid untuk memastikan integrasi data administrasi dan antarmuka yang bersih serta responsif."
+  },
+  {
+    "num": "02 //",
+    "category": "WEB",
+    "title": "GALERI FOTO ALUMNI SMA",
+    "tags": "Web Dev / PHP",
+    "year": "2026",
+    "summary": "Aplikasi web interaktif untuk dokumentasi memori alumni sekolah dengan manajemen visual dinamis dan fitur pergantian tema (theme toggle).",
+    "stack": "PHP Native, MySQL, Custom CSS",
+    "detail": "Proyek arsitektur web mandiri yang dirancang dengan PHP murni untuk mengelola database gambar dan profil alumni, menampilkan antarmuka galeri kronologis yang estetik dan rapi."
+  },
+  {
+    "num": "03 //",
+    "category": "DESIGN",
+    "title": "SANYSTORE04 & GFX DESIGN",
+    "tags": "Digital Design / Biz",
+    "year": "2026",
+    "summary": "Manajemen operasional toko digital SanyStore04 di Shopee, berfokus pada desain pakaian custom Roblox, aset grafis (GFX), dan layanan komunitas digital.",
+    "stack": "PixelLab, Canva, Photopea, Customuse",
+    "detail": "Menggabungkan kreativitas visual yang presisi dengan pengelolaan operasional platform e-commerce dan penataan ekosistem server Discord interaktif menggunakan automasi bot."
+  }
+]

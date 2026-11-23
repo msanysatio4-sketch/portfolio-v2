@@ -1,1069 +1,451 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>M. Sani Satio R Hasibuan — Portfolio Index v2.0</title>
-  
-  <!-- Fonts: Syne, Space Grotesk, Space Mono -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --bg: #E6E4DD;
-      --surface: #DEDBD2;
-      --ink: #0D0D0D;
-      --accent: #FF3B00;
-      --acid: #C5F82A;
-      --border: #0D0D0D;
-      
-      --font-display: 'Syne', sans-serif;
-      --font-sans: 'Space Grotesk', sans-serif;
-      --font-mono: 'Space Mono', monospace;
-    }
-
-    body.inverted {
-      --bg: #0D0D0D;
-      --surface: #181818;
-      --ink: #E6E4DD;
-      --border: #333330;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--ink);
-      font-family: var(--font-sans);
-      overflow-x: hidden;
-      transition: background-color 0.35s ease, color 0.35s ease;
-      cursor: none; /* Hide default cursor on desktop */
-    }
-
-    ::selection {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    /* CUSTOM CURSOR & CROSSHAIR (DESKTOP ONLY) */
-    .cursor-dot {
-      position: fixed;
-      width: 12px;
-      height: 12px;
-      background: var(--accent);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
-      transform: translate(-50%, -50%);
-      transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), height 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s;
-      mix-blend-mode: difference;
-    }
-    .cursor-dot.active {
-      width: 64px;
-      height: 64px;
-      background: var(--acid);
-    }
-    .crosshair-x, .crosshair-y {
-      position: fixed;
-      background: rgba(128, 128, 128, 0.2);
-      pointer-events: none;
-      z-index: 9998;
-    }
-    .crosshair-x { width: 100vw; height: 1px; top: 0; left: 0; }
-    .crosshair-y { width: 1px; height: 100vh; top: 0; left: 0; }
-
-    .cursor-coords {
-      position: fixed;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      background: var(--ink);
-      color: var(--bg);
-      padding: 2px 6px;
-      pointer-events: none;
-      z-index: 9999;
-      transform: translate(14px, 14px);
-    }
-
-    /* TOP SYSTEM BAR */
-    .sys-bar {
-      display: grid;
-      grid-template-columns: auto 1fr auto auto auto;
-      border-bottom: 2px solid var(--border);
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      background: var(--bg);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      transition: background 0.35s ease;
-    }
-
-    .sys-cell {
-      padding: 0.85rem 1.25rem;
-      border-right: 2px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-    .sys-cell:last-child { border-right: none; }
-
-    .theme-btn {
-      background: var(--ink);
-      color: var(--bg);
-      border: none;
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      padding: 0.85rem 1.25rem;
-      text-transform: uppercase;
-      font-weight: 700;
-      transition: background 0.2s, color 0.2s;
-    }
-    .theme-btn:hover {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .status-dot {
-      width: 9px;
-      height: 9px;
-      background: var(--accent);
-      display: inline-block;
-      animation: blink 1.2s infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.2; }
-    }
-
-    /* ARCHITECTURAL BENTO GRID HERO */
-    .bento-hero {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      border-bottom: 2px solid var(--border);
-    }
-
-    .cell {
-      border-right: 2px solid var(--border);
-      border-bottom: 2px solid var(--border);
-      padding: 2.5rem;
-      position: relative;
-      overflow: hidden;
-      background: var(--bg);
-      transition: background 0.35s ease;
-    }
-
-    .cell::before {
-      content: '';
-      position: absolute;
-      width: 450px;
-      height: 450px;
-      background: radial-gradient(circle, rgba(255,59,0,0.14) 0%, transparent 70%);
-      top: var(--mouse-y, -500px);
-      left: var(--mouse-x, -500px);
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-    }
-
-    .cell-label {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 2rem;
-      opacity: 0.7;
-    }
-
-    /* Cell 1: Nama Utama */
-    .cell-identity {
-      grid-column: span 8;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 460px;
-    }
-
-    .giant-name {
-      font-family: var(--font-display);
-      font-size: clamp(2.2rem, 8vw, 5.4rem); /* Disesuaikan agar responsif */
-      font-weight: 800;
-      line-height: 0.94;
-      text-transform: uppercase;
-      letter-spacing: -0.03em;
-    }
-
-    .giant-name .highlight {
-      color: var(--bg);
-      background: var(--ink);
-      padding: 0 0.22em;
-      display: inline-block;
-      transform: rotate(-1deg);
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, color 0.3s ease;
-    }
-
-    .cell-identity:hover .giant-name .highlight {
-      background: var(--accent);
-      color: #fff;
-      transform: rotate(1.5deg) scale(1.03);
-    }
-
-    /* Cell 2: Interactive Telemetry Module */
-    .cell-interactive {
-      grid-column: span 4;
-      border-right: none;
-      background: #0D0D0D;
-      color: #E6E4DD;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      perspective: 1000px;
-    }
-
-    .tilt-card {
-      border: 1px solid rgba(230, 228, 221, 0.22);
-      padding: 1.6rem;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-      transform-style: preserve-3d;
-    }
-
-    /* Live Telemetry Visualizer */
-    .telemetry-box {
-      border: 1px solid rgba(197, 248, 42, 0.35);
-      background: rgba(197, 248, 42, 0.04);
-      padding: 1rem;
-      margin: 1rem 0;
-    }
-
-    .telemetry-bars {
-      display: flex;
-      align-items: flex-end;
-      gap: 5px;
-      height: 64px;
-      margin-bottom: 0.8rem;
-    }
-
-    .t-bar {
-      flex: 1;
-      background: var(--acid);
-      height: 30%;
-      transition: height 0.15s ease;
-    }
-
-    .telemetry-specs {
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      color: var(--acid);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.4rem;
-    }
-
-    /* Cell 3: Manifesto */
-    .cell-manifesto {
-      grid-column: span 5;
-      border-bottom: none;
-      font-size: 1.12rem;
-      line-height: 1.55;
-      font-weight: 500;
-    }
-
-    /* Cell 4: Tech Stack Matrix */
-    .cell-stack {
-      grid-column: span 4;
-      border-bottom: none;
-    }
-
-    .stack-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .pill {
-      font-family: var(--font-mono);
-      font-size: 0.76rem;
-      padding: 0.45rem 0.85rem;
-      border: 1.5px solid var(--border);
-      text-transform: uppercase;
-      transition: all 0.2s ease;
-    }
-
-    .pill:hover {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-      transform: translateY(-3px);
-    }
-
-    /* Cell 5: Action Trigger */
-    .cell-cta {
-      grid-column: span 3;
-      border-right: none;
-      border-bottom: none;
-      background: var(--accent);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      font-family: var(--font-display);
-      font-size: 1.55rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      text-align: center;
-      transition: background 0.3s, color 0.3s;
-      padding: 2.5rem; /* Tambahkan padding dasar */
-    }
-
-    .cell-cta:hover {
-      background: #0D0D0D;
-      color: var(--acid);
-    }
-
-    /* KINETIC VELOCITY MARQUEE */
-    .marquee-wrap {
-      border-bottom: 2px solid var(--border);
-      background: #0D0D0D;
-      color: #E6E4DD;
-      padding: 1.1rem 0;
-      overflow: hidden;
-      white-space: nowrap;
-      display: flex;
-    }
-
-    .marquee-track {
-      display: flex;
-      gap: 3rem;
-      font-family: var(--font-display);
-      font-size: 1.9rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      will-change: transform;
-    }
-
-    .marquee-track span.accent-star {
-      color: var(--accent);
-    }
-
-    /* EXPANDING ARCHIVE SHOWCASE */
-    .archive-header {
-      padding: 2.2rem 2.5rem;
-      border-bottom: 2px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-
-    .archive-header h2 {
-      font-family: var(--font-display);
-      font-size: clamp(1.8rem, 5vw, 3.2rem);
-      text-transform: uppercase;
-    }
-
-    .project-row {
-      border-bottom: 2px solid var(--border);
-      background: var(--bg);
-      transition: background 0.3s ease;
-      overflow: hidden;
-    }
-
-    .project-row:hover {
-      background: var(--surface);
-    }
-
-    .project-summary {
-      display: grid;
-      grid-template-columns: 90px 1fr 240px 100px;
-      align-items: center;
-      padding: 2rem 2.5rem;
-    }
-
-    .p-num {
-      font-family: var(--font-mono);
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .p-title {
-      font-family: var(--font-display);
-      font-size: clamp(1.2rem, 4vw, 2.6rem);
-      text-transform: uppercase;
-      letter-spacing: -0.02em;
-    }
-
-    .p-tags, .p-year {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-    }
-
-    .p-year { text-align: right; }
-
-    .project-drawer {
-      height: 0;
-      overflow: hidden;
-      transition: height 0.45s cubic-bezier(0.16, 1, 0.3, 1), padding 0.45s ease;
-      padding: 0 2.5rem;
-    }
-
-    .project-row:hover .project-drawer,
-    .project-row:active .project-drawer {
-      height: 220px;
-      padding-bottom: 2rem;
-    }
-
-    .drawer-inner {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 100%;
-      border-top: 1px dashed var(--border);
-      padding-top: 1.5rem;
-    }
-
-    .drawer-desc {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 100%;
-      font-size: 1.05rem;
-      line-height: 1.6;
-    }
-
-    .btn-launch {
-      display: inline-block;
-      align-self: flex-start;
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      background: var(--ink);
-      color: var(--bg);
-      padding: 0.85rem 1.5rem;
-      text-decoration: none;
-      border: 2px solid var(--border);
-      font-weight: 700;
-      transition: 0.2s;
-    }
-
-    .btn-launch:hover {
-      background: var(--acid);
-      color: #0D0D0D;
-      border-color: #0D0D0D;
-    }
-
-    /* SLIDE-OVER PROJECT SPEC MODAL */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(13, 13, 13, 0.7);
-      backdrop-filter: blur(4px);
-      z-index: 900;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.35s ease;
-    }
-
-    .modal-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .spec-modal {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: min(620px, 100vw);
-      height: 100vh;
-      background: var(--bg);
-      color: var(--ink);
-      border-left: 3px solid var(--border);
-      z-index: 950;
-      padding: 2.5rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transform: translateX(100%);
-      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .modal-backdrop.open .spec-modal {
-      transform: translateX(0);
-    }
-
-    .modal-close {
-      align-self: flex-end;
-      font-family: var(--font-mono);
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    /* FOOTER & SOCIAL LINKS */
-    footer {
-      padding: 4rem 2.5rem;
-      background: #0D0D0D;
-      color: #E6E4DD;
-      display: flex;
-      flex-direction: column;
-      gap: 3.5rem;
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-    }
-
-    .footer-socials {
-      border-bottom: 1px solid rgba(230, 228, 221, 0.15);
-      padding-bottom: 3.5rem;
-    }
-
-    .social-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .s-link {
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
-      color: #E6E4DD;
-      text-decoration: none;
-      border: 1.5px solid rgba(230, 228, 221, 0.25);
-      padding: 0.75rem 1.25rem;
-      text-transform: uppercase;
-      font-weight: 700;
-      font-size: 0.8rem;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .s-link:hover {
-      background: var(--acid);
-      color: #0D0D0D;
-      border-color: var(--acid);
-      transform: translateY(-4px);
-    }
-
-    .s-link svg {
-      width: 16px;
-      height: 16px;
-      fill: currentColor;
-    }
-
-    .footer-bottom-flex {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-    }
-
-    .footer-big {
-      font-family: var(--font-display);
-      font-size: clamp(2rem, 8vw, 4.2rem);
-      line-height: 0.9;
-      color: var(--acid);
-      text-transform: uppercase;
-    }
-
-    /* ========================================= */
-    /* RESPONSIVE KHUSUS MOBILE (SMARTPHONE)     */
-    /* ========================================= */
-    @media (max-width: 968px) {
-      /* Matikan fitur cursor bawaan PC di HP */
-      body { cursor: auto; }
-      .cursor-dot, .crosshair-x, .crosshair-y, .cursor-coords {
-        display: none !important;
-      }
-
-      /* Rapikan Navigasi Atas */
-      .sys-bar {
-        grid-template-columns: auto 1fr auto; /* Hanya 3 kolom agar tidak nabrak */
-      }
-      .sys-cell:nth-child(2),
-      .sys-cell:nth-child(4) {
-        display: none; /* Sembunyikan teks info lokasi/arsip di HP */
-      }
-
-      /* Sesuaikan Jarak Padding Global */
-      .cell, .archive-header, .project-summary, footer, .spec-modal {
-        padding: 1.5rem;
-      }
-
-      /* Susun Kotak Bento ke bawah */
-      .cell-identity, .cell-interactive, .cell-manifesto, .cell-stack, .cell-cta {
-        grid-column: span 12;
-        border-right: none;
-        min-height: auto;
-      }
-      
-      .cell-cta {
-        padding: 3rem 1.5rem; /* Tambah ruang klik untuk tombol Arsip */
-      }
-
-      /* Rapikan Layout Daftar Proyek */
-      .project-summary {
-        grid-template-columns: 50px 1fr;
-      }
-      .p-tags, .p-year { 
-        display: none; 
-      }
-      .project-drawer {
-        padding: 0 1.5rem;
-      }
-      .project-row:hover .project-drawer,
-      .project-row:active .project-drawer {
-        height: 280px; /* Ruang tambahan teks laci khusus HP */
-        padding-bottom: 1.5rem;
-      }
-      .drawer-inner {
-        padding-top: 1rem;
-      }
-
-      /* Susunan Teks Footer */
-      .footer-bottom-flex {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 2rem;
-      }
-      .footer-bottom-flex > div[style*="text-align: right;"] {
-        text-align: left !important;
-      }
-      .social-grid {
-        flex-direction: column;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Custom Cursor & Crosshair (Akan disembunyikan di HP) -->
-  <div class="cursor-dot" id="cursor-dot"></div>
-  <div class="crosshair-x" id="cross-x"></div>
-  <div class="crosshair-y" id="cross-y"></div>
-  <div class="cursor-coords" id="coords">X:000 Y:000</div>
-
-  <!-- Top System Bar -->
-  <header class="sys-bar">
-    <div class="sys-cell">
-      <span class="status-dot"></span>
-      <span style="white-space: nowrap;">SYS.ONLINE // v2.0</span>
-    </div>
-    <div class="sys-cell">ARCHIVE: M. SANI SATIO R HASIBUAN</div>
-    <div class="sys-cell" id="live-clock" style="white-space: nowrap;">00:00:00 WIB</div>
-    <div class="sys-cell">ID — MEDAN / SUMUT</div>
-    <button class="theme-btn" id="theme-toggle" style="white-space: nowrap;">[PAPER/INK]</button>
-  </header>
-
-  <!-- Architectural Bento Grid -->
-  <main class="bento-hero">
-    
-    <!-- Cell 1: Nama Besar -->
-    <section class="cell cell-identity">
-      <div class="cell-label">
-        <span>[01 // IDENTITAS UTAMA]</span>
-        <span class="scramble-hover" data-text="INFORMATICS & CREATIVE DEV" style="text-align: right;">INFORMATICS &amp; CREATIVE DEV</span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>M. Sani Satio R Hasibuan — Portfolio Index v2.2</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="inverted">
+    <!-- SYSTEM BOOT OPENING SCREEN + STARFIELD (OPENING ONLY) -->
+    <div class="boot-screen" id="boot-screen">
+      <canvas id="starfield-canvas"></canvas>
+
+      <div class="boot-top">
+        <span>BIOS // SANI-OS v2.2</span>
+        <span>MEM: 640K OK</span>
       </div>
-      <h1 class="giant-name">
-        M. SANI<br>
-        <span class="highlight">SATIO R</span><br>
-        HASIBUAN.
-      </h1>
-    </section>
 
-    <!-- Cell 2: Panel 3D Interaktif + Live Frequency Bars -->
-    <section class="cell cell-interactive">
-      <div class="tilt-card" id="tilt-card">
-        <div class="cell-label" style="color: var(--acid); opacity: 1; margin-bottom: 0;">
-          <span>[02 // TELEMETRY]</span>
-          <span>LIVE SIGNAL</span>
+      <div class="boot-center">
+        <div class="boot-log" id="boot-log">
+          <div>&gt; INITIALIZING RAW DOM ENGINE...</div>
+          <div>&gt; LOADING PORTFOLIO ARCHIVE [2026]...</div>
+          <div>&gt; MOUNTING CLI TERMINAL &amp; AUDIO DECK...</div>
         </div>
 
-        <div class="telemetry-box">
-          <div class="telemetry-bars" id="telemetry-bars">
-            <div class="t-bar"></div><div class="t-bar"></div><div class="t-bar"></div>
-            <div class="t-bar"></div><div class="t-bar"></div><div class="t-bar"></div>
-            <div class="t-bar"></div><div class="t-bar"></div><div class="t-bar"></div>
-            <div class="t-bar"></div><div class="t-bar"></div><div class="t-bar"></div>
-          </div>
-          <div class="telemetry-specs">
-            <span>[X] ZERO AI SLOP</span>
-            <span>[X] KINETIC GRID</span>
-            <span>[X] RAW DOM ENGINE</span>
-            <span id="fps-counter">FPS: 60.0</span>
-          </div>
+        <div class="boot-bar-wrap">
+          <div class="boot-bar-fill" id="boot-bar-fill"></div>
         </div>
 
-        <p style="font-family: var(--font-mono); font-size: 0.78rem; line-height: 1.5; opacity: 0.85;">
-          Modul responsif 3D. Frekuensi di atas bereaksi langsung terhadap kecepatan gerak kursor kamu.
+        <div class="boot-status-row">
+          <span id="boot-status-text">BOOTING SYSTEM...</span>
+          <span id="boot-percent">0%</span>
+        </div>
+
+        <button class="boot-enter-btn" id="boot-enter-btn" type="button" hidden>
+          [ ENTER ARCHIVE ↵ ]
+        </button>
+      </div>
+
+      <div class="boot-bottom">
+        <span>ID: M. SANI SATIO R HASIBUAN</span>
+        <span>MEDAN // SUMUT</span>
+      </div>
+    </div>
+
+    <!-- Custom Cursor & Crosshair -->
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="crosshair-x" id="cross-x"></div>
+    <div class="crosshair-y" id="cross-y"></div>
+    <div class="cursor-coords" id="coords">X:000 Y:000</div>
+
+    <!-- Top System Bar -->
+    <header class="sys-bar">
+      <div class="sys-cell">
+        <span class="status-dot"></span>
+        <span style="white-space: nowrap">SYS.ONLINE // v2.2</span>
+      </div>
+      <div class="sys-cell">ARCHIVE: M. SANI SATIO R HASIBUAN</div>
+      <div class="sys-cell" id="live-clock" style="white-space: nowrap">
+        00:00:00 WIB
+      </div>
+      <div class="sys-cell">ID — MEDAN / SUMUT</div>
+      <button
+        class="sys-btn"
+        id="term-toggle-btn"
+        type="button"
+        style="white-space: nowrap"
+      >
+        [&gt;_ TERM]
+      </button>
+      <button
+        class="sys-btn"
+        id="audio-toggle-btn"
+        type="button"
+        style="white-space: nowrap"
+      >
+        [AUDIO]
+      </button>
+      <button
+        class="sys-btn"
+        id="theme-toggle"
+        type="button"
+        style="white-space: nowrap"
+      >
+        [PAPER/INK]
+      </button>
+    </header>
+
+    <!-- Architectural Bento Grid -->
+    <main class="bento-hero">
+      <section class="cell cell-identity">
+        <div class="cell-label">
+          <span>[01 // IDENTITAS UTAMA]</span>
+          <span
+            class="scramble-hover"
+            data-text="INFORMATICS & CREATIVE DEV"
+            style="text-align: right"
+            >INFORMATICS &amp; CREATIVE DEV</span
+          >
+        </div>
+        <h1 class="giant-name">
+          M. SANI<br />
+          <span class="highlight">SATIO R</span><br />
+          HASIBUAN.
+        </h1>
+      </section>
+
+      <section class="cell cell-interactive">
+        <div class="tilt-card" id="tilt-card">
+          <div
+            class="cell-label"
+            style="color: var(--acid); opacity: 1; margin-bottom: 0"
+          >
+            <span>[02 // TELEMETRY]</span>
+            <span id="signal-status">LIVE SIGNAL</span>
+          </div>
+
+          <div class="telemetry-box">
+            <div class="telemetry-bars" id="telemetry-bars">
+              <div class="t-bar"></div>
+              <div class="t-bar"></div>
+              <div class="t-bar"></div>
+              <div class="t-bar"></div>
+              <div class="t-bar"></div>
+              <div class="t-bar"></div>
+              <div class="t-bar"></div>
+              <div class="t-bar"></div>
+              <div class="t-bar"></div>
+              <div class="t-bar"></div>
+              <div class="t-bar"></div>
+              <div class="t-bar"></div>
+            </div>
+            <div class="telemetry-specs">
+              <span>[X] ZERO AI SLOP</span>
+              <span>[X] KINETIC GRID</span>
+              <span id="gh-repos-stat">[X] GH REPOS: ...</span>
+              <span id="fps-counter">FPS: 60.0</span>
+            </div>
+          </div>
+
+          <p
+            style="
+              font-family: var(--font-mono);
+              font-size: 0.78rem;
+              line-height: 1.5;
+              opacity: 0.85;
+            "
+          >
+            Modul responsif 3D. Frekuensi bereaksi terhadap gerak kursor &amp;
+            telemetri GitHub live.
+          </p>
+        </div>
+      </section>
+
+      <section class="cell cell-manifesto">
+        <div class="cell-label">
+          <span>[03 // MANIFESTO]</span>
+          <span>PENDEKATAN KERJA</span>
+        </div>
+        <p>
+          Mahasiswa D3 Teknik Informatika di AMIK Universal Medan. Memiliki
+          pendekatan mandiri dan eksperimental dalam optimalisasi hardware,
+          manajemen sistem melalui ADB shell, serta perancangan aplikasi web
+          fungsional yang responsif dan terstruktur.
         </p>
+      </section>
+
+      <section class="cell cell-stack">
+        <div class="cell-label">
+          <span>[04 // INSTRUMEN TEKNIS]</span>
+          <span>ARSENAL</span>
+        </div>
+        <div class="stack-pills">
+          <span class="pill">Python / Django</span>
+          <span class="pill">PHP / MySQL</span>
+          <span class="pill">HTML / CSS / JS</span>
+          <span class="pill">System Config (ADB)</span>
+          <span class="pill">GFX Design (PixelLab)</span>
+          <span class="pill">Discord Automation</span>
+        </div>
+      </section>
+
+      <a href="#archive" class="cell cell-cta"> BUKA<br />ARSIP ↓ </a>
+    </main>
+
+    <!-- Kinetic Marquee -->
+    <div class="marquee-wrap">
+      <div class="marquee-track" id="marquee-track">
+        <span>M. SANI SATIO R HASIBUAN</span> <span class="accent-star">✦</span>
+        <span>INFORMATICS ENGINEERING</span> <span class="accent-star">✦</span>
+        <span>SYSTEM CONFIG &amp; DEV</span> <span class="accent-star">✦</span>
+        <span>M. SANI SATIO R HASIBUAN</span> <span class="accent-star">✦</span>
+        <span>INFORMATICS ENGINEERING</span> <span class="accent-star">✦</span>
       </div>
-    </section>
-
-    <!-- Cell 3: Manifesto -->
-    <section class="cell cell-manifesto">
-      <div class="cell-label">
-        <span>[03 // MANIFESTO]</span>
-        <span>PENDEKATAN KERJA</span>
-      </div>
-      <p>
-        Mahasiswa D3 Teknik Informatika di AMIK Universal Medan. Memiliki pendekatan mandiri dan eksperimental dalam optimalisasi hardware, manajemen sistem melalui ADB shell, serta perancangan aplikasi web fungsional yang responsif dan terstruktur.
-      </p>
-    </section>
-
-    <!-- Cell 4: Tech Stack -->
-    <section class="cell cell-stack">
-      <div class="cell-label">
-        <span>[04 // INSTRUMEN TEKNIS]</span>
-        <span>ARSENAL</span>
-      </div>
-      <div class="stack-pills">
-        <span class="pill">Python / Django</span>
-        <span class="pill">PHP / MySQL</span>
-        <span class="pill">HTML / CSS / JS</span>
-        <span class="pill">System Config (ADB)</span>
-        <span class="pill">GFX Design (PixelLab)</span>
-        <span class="pill">Discord Automation</span>
-      </div>
-    </section>
-
-    <!-- Cell 5: CTA -->
-    <a href="#archive" class="cell cell-cta">
-      BUKA<br>ARSIP ↓
-    </a>
-
-  </main>
-
-  <!-- Kinetic Marquee -->
-  <div class="marquee-wrap">
-    <div class="marquee-track" id="marquee-track">
-      <span>M. SANI SATIO R HASIBUAN</span> <span class="accent-star">✦</span>
-      <span>INFORMATICS ENGINEERING</span> <span class="accent-star">✦</span>
-      <span>SYSTEM CONFIG & DEV</span> <span class="accent-star">✦</span>
-      <span>M. SANI SATIO R HASIBUAN</span> <span class="accent-star">✦</span>
-      <span>INFORMATICS ENGINEERING</span> <span class="accent-star">✦</span>
-    </div>
-  </div>
-
-  <!-- Interactive Expanding Archive -->
-  <section id="archive">
-    <div class="archive-header">
-      <h2>DIREKTORI KARYA</h2>
-      <span style="font-family: var(--font-mono); font-size: 0.82rem; text-align: right;">[SENTUH / KLIK UNTUK DETAIL]</span>
     </div>
 
-    <!-- Project 01 -->
-    <article class="project-row">
-      <div class="project-summary">
-        <span class="p-num">01 //</span>
-        <h3 class="p-title scramble-hover" data-text="SISTEM ADMIN BIMBEL NAUFAL">SISTEM ADMIN BIMBEL NAUFAL</h3>
-        <span class="p-tags">Full-Stack / Python</span>
-        <span class="p-year">2026</span>
-      </div>
-      <div class="project-drawer">
-        <div class="drawer-inner">
-          <div class="drawer-desc">
-            <p>Sistem Informasi Administrasi berbasis web, dirancang sebagai Tugas Akhir untuk mengelola data operasional Naufal Computer dan Bimbel secara terpusat.</p>
-            <button class="btn-launch open-modal" 
-              data-title="SISTEM ADMIN BIMBEL NAUFAL"
-              data-stack="Python, Django, HTML, CSS, MySQL"
-              data-detail="Dikembangkan untuk manajemen operasional di Desa Pagaran Jalu-Jalu. Menggunakan kerangka kerja Django yang solid untuk memastikan integrasi data administrasi dan antarmuka yang bersih serta responsif.">
-              INSPEKSI PROYEK ↗
+    <!-- Interactive Expanding Archive (Dimuat dari projects.json + Filter) -->
+    <section id="archive">
+      <div class="archive-header">
+        <div>
+          <h2>DIREKTORI KARYA</h2>
+          <div class="filter-bar" id="filter-bar">
+            <button class="filter-btn active" data-filter="ALL" type="button">
+              [ALL]
+            </button>
+            <button class="filter-btn" data-filter="WEB" type="button">
+              [WEB DEV]
+            </button>
+            <button class="filter-btn" data-filter="DESIGN" type="button">
+              [DESIGN &amp; BIZ]
             </button>
           </div>
         </div>
+        <span
+          style="
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            text-align: right;
+          "
+          >[SENTUH / KLIK UNTUK DETAIL]</span
+        >
       </div>
-    </article>
+      <div id="project-list"></div>
+    </section>
 
-    <!-- Project 02 -->
-    <article class="project-row">
-      <div class="project-summary">
-        <span class="p-num">02 //</span>
-        <h3 class="p-title scramble-hover" data-text="GALERI FOTO ALUMNI SMA">GALERI FOTO ALUMNI SMA</h3>
-        <span class="p-tags">Web Dev / PHP</span>
-        <span class="p-year">2026</span>
-      </div>
-      <div class="project-drawer">
-        <div class="drawer-inner">
-          <div class="drawer-desc">
-            <p>Aplikasi web interaktif untuk dokumentasi memori alumni sekolah dengan manajemen visual dinamis dan fitur pergantian tema (theme toggle).</p>
-            <button class="btn-launch open-modal"
-              data-title="GALERI FOTO ALUMNI SMA"
-              data-stack="PHP Native, MySQL, Custom CSS"
-              data-detail="Proyek arsitektur web mandiri yang dirancang dengan PHP murni untuk mengelola database gambar dan profil alumni, menampilkan antarmuka galeri kronologis yang estetik dan rapi.">
-              INSPEKSI PROYEK ↗
-            </button>
+    <!-- INTERACTIVE CLI TERMINAL MODAL -->
+    <div class="modal-backdrop" id="term-backdrop">
+      <aside class="cli-window">
+        <div class="cli-header">
+          <span>SANI-OS // INTERACTIVE COMMAND SHELL</span>
+          <button class="deck-close" id="term-close-btn" type="button">
+            [X]
+          </button>
+        </div>
+        <div class="cli-output" id="cli-output">
+          <div>SANI-OS Terminal v2.2 [Connected to local archive]</div>
+          <div>
+            Ketik <span style="color: var(--acid)">help</span> untuk melihat
+            daftar perintah yang tersedia.
           </div>
         </div>
-      </div>
-    </article>
+        <form class="cli-input-row" id="cli-form">
+          <span class="cli-prompt">guest@sani-os:~$</span>
+          <input
+            type="text"
+            id="cli-input"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="ketik perintah (help, whoami, stack, projects)..."
+          />
+        </form>
+      </aside>
+    </div>
 
-    <!-- Project 03 -->
-    <article class="project-row">
-      <div class="project-summary">
-        <span class="p-num">03 //</span>
-        <h3 class="p-title scramble-hover" data-text="SANYSTORE04 & GFX DESIGN">SANYSTORE04 & GFX DESIGN</h3>
-        <span class="p-tags">Digital Design / Biz</span>
-        <span class="p-year">2026</span>
+    <!-- Floating Audio / Spotify Pop-Up Deck -->
+    <aside class="audio-deck hidden" id="audio-deck">
+      <div class="deck-header">
+        <span>// AUDIO TELEMETRY DECK</span>
+        <button class="deck-close" id="deck-close-btn" type="button">
+          MINIMIZE [_]
+        </button>
       </div>
-      <div class="project-drawer">
-        <div class="drawer-inner">
-          <div class="drawer-desc">
-            <p>Manajemen operasional toko digital SanyStore04 di Shopee, berfokus pada desain pakaian custom Roblox, aset grafis (GFX), dan layanan komunitas digital.</p>
-            <button class="btn-launch open-modal"
-              data-title="SANYSTORE04 & GFX DESIGN"
-              data-stack="PixelLab, Canva, Photopea, Customuse"
-              data-detail="Menggabungkan kreativitas visual yang presisi dengan pengelolaan operasional platform e-commerce dan penataan ekosistem server Discord interaktif menggunakan automasi bot.">
-              INSPEKSI PROYEK ↗
-            </button>
-          </div>
-        </div>
-      </div>
-    </article>
-  </section>
 
-  <!-- Slide-Over Spec Modal -->
-  <div class="modal-backdrop" id="modal-backdrop">
-    <aside class="spec-modal">
-      <button class="modal-close" id="modal-close">[TUTUP PANEL ✕]</button>
-      <div>
-        <div style="font-family: var(--font-mono); color: var(--accent); font-size: 0.8rem; margin-bottom: 0.8rem;">
-          // LEMBAR SPESIFIKASI TEKNIS
-        </div>
-        <h3 id="m-title" style="font-family: var(--font-display); font-size: 2.4rem; line-height: 1; margin-bottom: 1.5rem; text-transform: uppercase;"></h3>
-        <div style="border-top: 2px solid var(--border); border-bottom: 2px solid var(--border); padding: 1rem 0; margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 0.82rem;">
-          <strong>STACK TEKNOLOGI:</strong> <span id="m-stack"></span>
-        </div>
-        <p id="m-detail" style="line-height: 1.7; font-size: 1.05rem;"></p>
+      <div class="deck-tabs">
+        <button class="deck-tab active" id="tab-spotify" type="button">
+          SPOTIFY
+        </button>
+        <button class="deck-tab" id="tab-local" type="button">
+          3-TRACK MP3
+        </button>
       </div>
-      <div style="font-family: var(--font-mono); font-size: 0.75rem; opacity: 0.6;">
-        STATUS ARSIP: TERVERIFIKASI // M. SANI SATIO R HASIBUAN
+
+      <div class="deck-body" id="panel-spotify">
+        <iframe
+          style="border-radius: 6px; display: block"
+          src="https://open.spotify.com/embed/playlist/4Llm5dsEGtxu1NezAlAgtB?utm_source=generator&theme=0"
+          width="100%"
+          height="352"
+          frameborder="0"
+          allow="
+            autoplay;
+            clipboard-write;
+            encrypted-media;
+            fullscreen;
+            picture-in-picture;
+          "
+          loading="lazy"
+        >
+        </iframe>
+      </div>
+
+      <div class="deck-body" id="panel-local" style="display: none">
+        <div class="track-info" id="local-track-title">
+          [01/03] TRACK 01 — READY
+        </div>
+        <div class="deck-controls">
+          <button class="ctrl-btn" id="prev-track-btn" type="button">
+            ◀ PREV
+          </button>
+          <button class="ctrl-btn" id="play-pause-btn" type="button">
+            ▶ PLAY
+          </button>
+          <button class="ctrl-btn" id="next-track-btn" type="button">
+            NEXT ▶
+          </button>
+        </div>
+        <audio id="local-audio" preload="none"></audio>
       </div>
     </aside>
-  </div>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-socials">
-      <div style="margin-bottom: 1.2rem; opacity: 0.5; text-transform: uppercase;">[05 // JEJARING SOSIAL &amp; KONTAK]</div>
-      <div class="social-grid">
-        
-        <!-- Facebook -->
-        <a href="#" target="_blank" class="s-link">
-          <svg viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/></svg>
-          M. Sani Satio R
-        </a>
-
-        <!-- Instagram -->
-        <a href="https://instagram.com/msany_hsb" target="_blank" class="s-link">
-          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-          msany_hsb
-        </a>
-
-        <!-- YouTube -->
-        <a href="#" target="_blank" class="s-link">
-          <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-          M SANY HS
-        </a>
-
-        <!-- TikTok -->
-        <a href="#" target="_blank" class="s-link">
-          <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.04.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93v7.2c0 1.96-.5 3.96-1.7 5.48-1.22 1.53-3.04 2.54-5.01 2.77-1.99.23-4.08-.1-5.69-1.27-1.64-1.2-2.73-3.13-2.77-5.18-.04-1.95.83-3.92 2.3-5.26 1.45-1.32 3.49-1.92 5.44-1.57.26.05.52.12.78.2v4.21c-.34-.1-.7-.18-1.06-.21-1.32-.08-2.7.35-3.56 1.3-.87.96-1.1 2.4-.64 3.59.48 1.18 1.62 2.12 2.91 2.32 1.3.2 2.67-.14 3.63-1.02.94-.87 1.42-2.22 1.42-3.52V0h3.87z"/></svg>
-          sanntrius
-        </a>
-
-        <!-- GitHub -->
-        <a href="https://github.com/msanysatio4-sketch" target="_blank" class="s-link">
-          <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-          msanysatio4-sketch
-        </a>
-
-      </div>
+    <!-- Slide-Over Spec Modal -->
+    <div class="modal-backdrop" id="modal-backdrop">
+      <aside class="spec-modal">
+        <button class="modal-close" id="modal-close" type="button">
+          [TUTUP PANEL ✕]
+        </button>
+        <div>
+          <div
+            style="
+              font-family: var(--font-mono);
+              color: var(--accent);
+              font-size: 0.8rem;
+              margin-bottom: 0.8rem;
+            "
+          >
+            // LEMBAR SPESIFIKASI TEKNIS
+          </div>
+          <h3
+            id="m-title"
+            style="
+              font-family: var(--font-display);
+              font-size: 2.4rem;
+              line-height: 1;
+              margin-bottom: 1.5rem;
+              text-transform: uppercase;
+            "
+          ></h3>
+          <div
+            style="
+              border-top: 2px solid var(--border);
+              border-bottom: 2px solid var(--border);
+              padding: 1rem 0;
+              margin-bottom: 1.5rem;
+              font-family: var(--font-mono);
+              font-size: 0.82rem;
+            "
+          >
+            <strong>STACK TEKNOLOGI:</strong> <span id="m-stack"></span>
+          </div>
+          <p id="m-detail" style="line-height: 1.7; font-size: 1.05rem"></p>
+        </div>
+        <div
+          style="
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            opacity: 0.6;
+          "
+        >
+          STATUS ARSIP: TERVERIFIKASI // M. SANI SATIO R HASIBUAN
+        </div>
+      </aside>
     </div>
 
-    <div class="footer-bottom-flex">
-      <div>
-        <div style="margin-bottom: 0.5rem; opacity: 0.6;">TERSEDIA UNTUK PROYEK &amp; KOLABORASI</div>
-        <div class="footer-big">M. SANI SATIO R H.</div>
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-socials">
+        <div
+          style="margin-bottom: 1.2rem; opacity: 0.5; text-transform: uppercase"
+        >
+          [05 // JEJARING SOSIAL &amp; KONTAK]
+        </div>
+        <div class="social-grid">
+          <a
+            href="https://discord.com/users/1245735170200309896"
+            target="_blank"
+            class="s-link"
+          >
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"
+              />
+            </svg>
+            Discord
+          </a>
+
+          <a
+            href="https://instagram.com/msany_hsb"
+            target="_blank"
+            class="s-link"
+          >
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
+              />
+            </svg>
+            msany_hsb
+          </a>
+
+          <a
+            href="https://github.com/msanysatio4-sketch"
+            target="_blank"
+            class="s-link"
+          >
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+              />
+            </svg>
+            msanysatio4-sketch
+          </a>
+
+          <!-- One-Click Copy Handle Button -->
+          <button
+            type="button"
+            class="s-link copy-btn"
+            id="copy-handle-btn"
+            data-copy="SanyStore04 / @msany_hsb"
+          >
+            [COPY HANDLE: SANYSTORE04]
+          </button>
+        </div>
       </div>
-      <div style="text-align: right;">
-        <div>DEVELOPED &amp; ENGINEERED BY M. SANI</div>
-        <div style="color: var(--accent); margin-top: 0.3rem;">© 2026 ALL RIGHTS RESERVED</div>
+
+      <div class="footer-bottom-flex">
+        <div>
+          <div style="margin-bottom: 0.5rem; opacity: 0.6">
+            TERSEDIA UNTUK PROYEK &amp; KOLABORASI
+          </div>
+          <div class="footer-big">M. SANI SATIO R H.</div>
+        </div>
+        <div style="text-align: right">
+          <div>DEVELOPED &amp; ENGINEERED BY M. SANI</div>
+          <div style="color: var(--accent); margin-top: 0.3rem">
+            © 2026 ALL RIGHTS RESERVED
+          </div>
+        </div>
       </div>
-    </div>
-  </footer>
+    </footer>
 
-  <!-- GSAP Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-
-  <script>
-    // 1. Live Clock WIB
-    function updateClock() {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
-      document.getElementById('live-clock').textContent = timeStr + ' WIB';
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // 2. Dark / Light High-Contrast Mode Switcher
-    const themeBtn = document.getElementById('theme-toggle');
-    themeBtn.addEventListener('click', () => {
-      document.body.classList.toggle('inverted');
-    });
-
-    // 3. Custom Crosshair & Telemetry Frequency Bars
-    // (Hanya jalan di desktop karena display kursor di hidden via CSS di Mobile)
-    const dot = document.getElementById('cursor-dot');
-    const crossX = document.getElementById('cross-x');
-    const crossY = document.getElementById('cross-y');
-    const coords = document.getElementById('coords');
-    const bars = document.querySelectorAll('.t-bar');
-
-    window.addEventListener('mousemove', (e) => {
-      const x = e.clientX;
-      const y = e.clientY;
-
-      gsap.to(dot, { x: x, y: y, duration: 0.08 });
-      gsap.to(crossX, { y: y, duration: 0.14 });
-      gsap.to(crossY, { x: x, duration: 0.14 });
-      gsap.to(coords, { x: x, y: y, duration: 0.18 });
-
-      coords.textContent = `X:${String(x).padStart(3, '0')} Y:${String(y).padStart(3, '0')}`;
-
-      // Gerakkan grafik batang
-      bars.forEach((bar, i) => {
-        const wave = Math.abs(Math.sin((x + y + i * 25) * 0.02)) * 85 + 15;
-        bar.style.height = `${wave}%`;
-      });
-    });
-
-    // Animasi idle untuk grafik batang
-    setInterval(() => {
-      bars.forEach((bar) => {
-        const randomH = Math.floor(Math.random() * 60) + 20;
-        bar.style.height = `${randomH}%`;
-      });
-    }, 600);
-
-    document.querySelectorAll('a, button, .pill, .project-row').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        if(dot) dot.classList.add('active');
-      });
-      el.addEventListener('mouseleave', () => {
-        if(dot) dot.classList.remove('active');
-      });
-    });
-
-    // 4. Text Scramble Effect
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/#%&*";
-    document.querySelectorAll('.scramble-hover').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        const originalText = el.getAttribute('data-text');
-        let iteration = 0;
-        clearInterval(el.scrambleInterval);
-
-        el.scrambleInterval = setInterval(() => {
-          el.textContent = originalText
-            .split("")
-            .map((letter, index) => {
-              if (index < iteration || letter === " ") return originalText[index];
-              return chars[Math.floor(Math.random() * chars.length)];
-            })
-            .join("");
-
-          if (iteration >= originalText.length) {
-            clearInterval(el.scrambleInterval);
-          }
-          iteration += 1 / 2;
-        }, 25);
-      });
-    });
-
-    // 5. Spotlight Effect
-    document.querySelectorAll('.cell').forEach(cell => {
-      cell.addEventListener('mousemove', (e) => {
-        const rect = cell.getBoundingClientRect();
-        cell.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-        cell.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-      });
-    });
-
-    // 6. 3D Perspective Tilt pada Kartu
-    const tiltCard = document.getElementById('tilt-card');
-    tiltCard.addEventListener('mousemove', (e) => {
-      const rect = tiltCard.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-      gsap.to(tiltCard, {
-        rotationY: x * 0.06,
-        rotationX: -y * 0.06,
-        duration: 0.35,
-        ease: 'power2.out'
-      });
-    });
-    tiltCard.addEventListener('mouseleave', () => {
-      gsap.to(tiltCard, { rotationY: 0, rotationX: 0, duration: 0.7, ease: 'elastic.out(1, 0.4)' });
-    });
-
-    // 7. Marquee
-    const marqueeAnim = gsap.to("#marquee-track", {
-      xPercent: -50,
-      repeat: -1,
-      duration: 16,
-      ease: "linear"
-    });
-
-    let lastScroll = window.scrollY;
-    window.addEventListener('scroll', () => {
-      const currentScroll = window.scrollY;
-      const velocity = currentScroll - lastScroll;
-      lastScroll = currentScroll;
-
-      const skewVal = Math.max(Math.min(velocity * 0.25, 12), -12);
-      gsap.to("#marquee-track", {
-        skewX: -skewVal,
-        duration: 0.3,
-        ease: "power2.out",
-        onComplete: () => {
-          gsap.to("#marquee-track", { skewX: 0, duration: 0.5 });
-        }
-      });
-    });
-
-    // 8. Slide-Over Project Modal
-    const backdrop = document.getElementById('modal-backdrop');
-    const closeBtn = document.getElementById('modal-close');
-    const mTitle = document.getElementById('m-title');
-    const mStack = document.getElementById('m-stack');
-    const mDetail = document.getElementById('m-detail');
-
-    document.querySelectorAll('.open-modal').forEach(btn => {
-      btn.addEventListener('click', () => {
-        mTitle.textContent = btn.getAttribute('data-title');
-        mStack.textContent = btn.getAttribute('data-stack');
-        mDetail.textContent = btn.getAttribute('data-detail');
-        backdrop.classList.add('open');
-      });
-    });
-
-    closeBtn.addEventListener('click', () => backdrop.classList.remove('open'));
-    backdrop.addEventListener('click', (e) => {
-      if (e.target === backdrop) backdrop.classList.remove('open');
-    });
-  </script>
-</body>
+    <!-- GSAP Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="script.js"></script>
+  </body>
 </html>
