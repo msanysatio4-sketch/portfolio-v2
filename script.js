@@ -336,8 +336,16 @@ const localTracks = [
     src: "assets/lagu1.mp3",
     startTime: 0,
   },
-  { title: "[02/03] JUDUL LAGU KEDUA", src: "assets/lagu2.mp3", startTime: 0 },
-  { title: "[03/03] JUDUL LAGU KETIGA", src: "assets/lagu3.mp3", startTime: 0 },
+  {
+    title: "[02/03] Poppin in the Club",
+    src: "assets/lagu2.mp3",
+    startTime: 0,
+  },
+  {
+    title: "[03/03] Mamacita - Adnan Veron",
+    src: "assets/lagu3.mp3",
+    startTime: 0,
+  },
 ];
 
 const localAudio = document.getElementById("local-audio");
