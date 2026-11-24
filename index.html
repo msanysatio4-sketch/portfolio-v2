@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>M. Sani Satio R Hasibuan — Portfolio Index v2.2</title>
+    <title>M. Sani Satio R Hasibuan — Portfolio Index v2.5</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,7 +19,7 @@
       <canvas id="starfield-canvas"></canvas>
 
       <div class="boot-top">
-        <span>BIOS // SANI-OS v2.2</span>
+        <span>BIOS // SANI-OS v2.5</span>
         <span>MEM: 640K OK</span>
       </div>
 
@@ -27,7 +27,7 @@
         <div class="boot-log" id="boot-log">
           <div>&gt; INITIALIZING RAW DOM ENGINE...</div>
           <div>&gt; LOADING PORTFOLIO ARCHIVE [2026]...</div>
-          <div>&gt; MOUNTING CLI TERMINAL &amp; AUDIO DECK...</div>
+          <div>&gt; MOUNTING OSCILLOSCOPE &amp; VINYL DECK...</div>
         </div>
 
         <div class="boot-bar-wrap">
@@ -46,7 +46,7 @@
 
       <div class="boot-bottom">
         <span>ID: M. SANI SATIO R HASIBUAN</span>
-        <span>MEDAN // SUMUT</span>
+        <span>PADANG LAWAS // SUMUT</span>
       </div>
     </div>
 
@@ -60,13 +60,13 @@
     <header class="sys-bar">
       <div class="sys-cell">
         <span class="status-dot"></span>
-        <span style="white-space: nowrap">SYS.ONLINE // v2.2</span>
+        <span style="white-space: nowrap">SYS.ONLINE // v2.5</span>
       </div>
       <div class="sys-cell">ARCHIVE: M. SANI SATIO R HASIBUAN</div>
       <div class="sys-cell" id="live-clock" style="white-space: nowrap">
         00:00:00 WIB
       </div>
-      <div class="sys-cell">ID — MEDAN / SUMUT</div>
+      <div class="sys-cell">ID — PADANG LAWAS / SUMUT</div>
       <button
         class="sys-btn"
         id="term-toggle-btn"
@@ -75,14 +75,19 @@
       >
         [&gt;_ TERM]
       </button>
-      <button
+      <a
+        href="#audio-section"
         class="sys-btn"
-        id="audio-toggle-btn"
-        type="button"
-        style="white-space: nowrap"
+        id="audio-nav-btn"
+        style="
+          white-space: nowrap;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+        >[AUDIO]</a
       >
-        [AUDIO]
-      </button>
       <button
         class="sys-btn"
         id="theme-toggle"
@@ -123,22 +128,9 @@
           </div>
 
           <div class="telemetry-box">
-            <div class="telemetry-bars" id="telemetry-bars">
-              <div class="t-bar"></div>
-              <div class="t-bar"></div>
-              <div class="t-bar"></div>
-              <div class="t-bar"></div>
-              <div class="t-bar"></div>
-              <div class="t-bar"></div>
-              <div class="t-bar"></div>
-              <div class="t-bar"></div>
-              <div class="t-bar"></div>
-              <div class="t-bar"></div>
-              <div class="t-bar"></div>
-              <div class="t-bar"></div>
-            </div>
+            <canvas id="telemetry-wave"></canvas>
             <div class="telemetry-specs">
-              <span>[X] ZERO AI SLOP</span>
+              <span>[X] FOMO NGODING NIH</span>
               <span>[X] KINETIC GRID</span>
               <span id="gh-repos-stat">[X] GH REPOS: ...</span>
               <span id="fps-counter">FPS: 60.0</span>
@@ -153,8 +145,8 @@
               opacity: 0.85;
             "
           >
-            Modul responsif 3D. Frekuensi bereaksi terhadap gerak kursor &amp;
-            telemetri GitHub live.
+            Modul responsif 3D. Gelombang osiloskop bereaksi terhadap gerak
+            kursor &amp; telemetri GitHub live.
           </p>
         </div>
       </section>
@@ -190,6 +182,71 @@
       <a href="#archive" class="cell cell-cta"> BUKA<br />ARSIP ↓ </a>
     </main>
 
+    <!-- INLINE VINYL AUDIO DECK SECTION + BEAT VISUALIZER BACKGROUND -->
+    <section class="audio-section" id="audio-section">
+      <div class="audio-vinyl-wrap">
+        <div class="vinyl-disc" id="vinyl-disc">
+          <div class="vinyl-grooves"></div>
+          <div class="vinyl-label">
+            <span>SANI-OS</span>
+            <small>33 RPM</small>
+          </div>
+          <div class="vinyl-spindle"></div>
+        </div>
+        <div class="vinyl-arm" id="vinyl-arm"></div>
+      </div>
+
+      <div class="audio-panel">
+        <canvas id="beat-canvas"></canvas>
+
+        <div class="audio-panel-content">
+          <div class="cell-label" style="margin-bottom: 1rem">
+            <span>[05 // AUDIO TELEMETRY &amp; VINYL DECK]</span>
+            <span
+              id="audio-state-badge"
+              style="color: var(--accent); font-weight: 700"
+              >STANDBY</span
+            >
+          </div>
+
+          <h3 class="audio-now-title" id="local-track-title">
+            [01/03] GEMU FA MI RE - NYONG FRANCO
+          </h3>
+
+          <div
+            class="audio-progress-wrap"
+            id="audio-progress-wrap"
+            title="Klik untuk lompat waktu lagu"
+          >
+            <div class="audio-progress-fill" id="audio-progress-fill"></div>
+          </div>
+
+          <div class="audio-time-row">
+            <span id="audio-current-time">00:00</span>
+            <span id="audio-duration">00:00</span>
+          </div>
+
+          <div class="audio-controls-row">
+            <button class="ctrl-btn" id="prev-track-btn" type="button">
+              ◀ PREV
+            </button>
+            <button
+              class="ctrl-btn primary-play"
+              id="play-pause-btn"
+              type="button"
+            >
+              ▶ PLAY DISC
+            </button>
+            <button class="ctrl-btn" id="next-track-btn" type="button">
+              NEXT ▶
+            </button>
+          </div>
+        </div>
+
+        <audio id="local-audio" preload="metadata"></audio>
+      </div>
+    </section>
+
     <!-- Kinetic Marquee -->
     <div class="marquee-wrap">
       <div class="marquee-track" id="marquee-track">
@@ -201,7 +258,7 @@
       </div>
     </div>
 
-    <!-- Interactive Expanding Archive (Dimuat dari projects.json + Filter) -->
+    <!-- Interactive Expanding Archive -->
     <section id="archive">
       <div class="archive-header">
         <div>
@@ -240,7 +297,7 @@
           </button>
         </div>
         <div class="cli-output" id="cli-output">
-          <div>SANI-OS Terminal v2.2 [Connected to local archive]</div>
+          <div>SANI-OS Terminal v2.5 [Connected to local archive]</div>
           <div>
             Ketik <span style="color: var(--acid)">help</span> untuk melihat
             daftar perintah yang tersedia.
@@ -258,62 +315,6 @@
         </form>
       </aside>
     </div>
-
-    <!-- Floating Audio / Spotify Pop-Up Deck -->
-    <aside class="audio-deck hidden" id="audio-deck">
-      <div class="deck-header">
-        <span>// AUDIO TELEMETRY DECK</span>
-        <button class="deck-close" id="deck-close-btn" type="button">
-          MINIMIZE [_]
-        </button>
-      </div>
-
-      <div class="deck-tabs">
-        <button class="deck-tab active" id="tab-spotify" type="button">
-          SPOTIFY
-        </button>
-        <button class="deck-tab" id="tab-local" type="button">
-          3-TRACK MP3
-        </button>
-      </div>
-
-      <div class="deck-body" id="panel-spotify">
-        <iframe
-          style="border-radius: 6px; display: block"
-          src="https://open.spotify.com/embed/playlist/4Llm5dsEGtxu1NezAlAgtB?utm_source=generator&theme=0"
-          width="100%"
-          height="352"
-          frameborder="0"
-          allow="
-            autoplay;
-            clipboard-write;
-            encrypted-media;
-            fullscreen;
-            picture-in-picture;
-          "
-          loading="lazy"
-        >
-        </iframe>
-      </div>
-
-      <div class="deck-body" id="panel-local" style="display: none">
-        <div class="track-info" id="local-track-title">
-          [01/03] TRACK 01 — READY
-        </div>
-        <div class="deck-controls">
-          <button class="ctrl-btn" id="prev-track-btn" type="button">
-            ◀ PREV
-          </button>
-          <button class="ctrl-btn" id="play-pause-btn" type="button">
-            ▶ PLAY
-          </button>
-          <button class="ctrl-btn" id="next-track-btn" type="button">
-            NEXT ▶
-          </button>
-        </div>
-        <audio id="local-audio" preload="none"></audio>
-      </div>
-    </aside>
 
     <!-- Slide-Over Spec Modal -->
     <div class="modal-backdrop" id="modal-backdrop">
@@ -374,7 +375,7 @@
         <div
           style="margin-bottom: 1.2rem; opacity: 0.5; text-transform: uppercase"
         >
-          [05 // JEJARING SOSIAL &amp; KONTAK]
+          [06 // JEJARING SOSIAL &amp; KONTAK]
         </div>
         <div class="social-grid">
           <a
@@ -433,7 +434,7 @@
           <div style="margin-bottom: 0.5rem; opacity: 0.6">
             TERSEDIA UNTUK PROYEK &amp; KOLABORASI
           </div>
-          <div class="footer-big">M. SANI SATIO R H.</div>
+          <div class="footer-big">HORAS LEK KUH.</div>
         </div>
         <div style="text-align: right">
           <div>DEVELOPED &amp; ENGINEERED BY M. SANI</div>

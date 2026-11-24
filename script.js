@@ -13,12 +13,91 @@ themeBtn.addEventListener("click", () => {
   document.body.classList.toggle("inverted");
 });
 
-// 3. Custom Crosshair & Telemetry Frequency Bars
+// 3. Custom Crosshair & Telemetry Oscilloscope Wave
 const dot = document.getElementById("cursor-dot");
 const crossX = document.getElementById("cross-x");
 const crossY = document.getElementById("cross-y");
 const coords = document.getElementById("coords");
-const bars = document.querySelectorAll(".t-bar");
+
+const waveCanvas = document.getElementById("telemetry-wave");
+const waveCtx = waveCanvas ? waveCanvas.getContext("2d") : null;
+let wavePhase = 0;
+let waveAmpTarget = 14;
+let waveAmpCurrent = 14;
+let waveFreq = 0.045;
+let isLocalPlaying = false;
+
+function resizeTelemetryWave() {
+  if (!waveCanvas) return;
+  waveCanvas.width = Math.max(120, waveCanvas.parentElement.clientWidth - 20);
+  waveCanvas.height = 64;
+}
+window.addEventListener("resize", resizeTelemetryWave);
+resizeTelemetryWave();
+
+function renderTelemetryWave() {
+  if (waveCtx && waveCanvas) {
+    const w = waveCanvas.width;
+    const h = waveCanvas.height;
+    const midY = h / 2;
+
+    waveCtx.clearRect(0, 0, w, h);
+
+    // Garis tengah & grid horizontal tipis
+    waveCtx.strokeStyle = "rgba(197, 248, 42, 0.14)";
+    waveCtx.lineWidth = 1;
+    waveCtx.beginPath();
+    waveCtx.moveTo(0, midY);
+    waveCtx.lineTo(w, midY);
+    waveCtx.stroke();
+
+    // Haluskan transisi amplitudo
+    waveAmpCurrent += (waveAmpTarget - waveAmpCurrent) * 0.12;
+    waveAmpTarget += (12 - waveAmpTarget) * 0.04;
+
+    // Gambar gelombang garis utama (Acid Green)
+    waveCtx.strokeStyle = "#C5F82A";
+    waveCtx.lineWidth = 2;
+    waveCtx.beginPath();
+
+    for (let x = 0; x <= w; x += 2) {
+      const envelope = Math.sin((x / w) * Math.PI);
+      const y =
+        midY +
+        Math.sin(x * waveFreq + wavePhase) * waveAmpCurrent * envelope +
+        Math.cos(x * (waveFreq * 1.9) - wavePhase * 1.4) *
+          (waveAmpCurrent * 0.35) *
+          envelope;
+
+      if (x === 0) waveCtx.moveTo(x, y);
+      else waveCtx.lineTo(x, y);
+    }
+    waveCtx.stroke();
+
+    // Gelombang bayangan sekunder (Accent Orange)
+    waveCtx.strokeStyle = "rgba(255, 59, 0, 0.55)";
+    waveCtx.lineWidth = 1.2;
+    waveCtx.beginPath();
+    for (let x = 0; x <= w; x += 3) {
+      const envelope = Math.sin((x / w) * Math.PI);
+      const y =
+        midY +
+        Math.cos(x * (waveFreq * 0.8) - wavePhase * 0.9) *
+          (waveAmpCurrent * 0.55) *
+          envelope;
+      if (x === 0) waveCtx.moveTo(x, y);
+      else waveCtx.lineTo(x, y);
+    }
+    waveCtx.stroke();
+
+    wavePhase += isLocalPlaying ? 0.14 : 0.07;
+    if (isLocalPlaying) {
+      waveAmpTarget = Math.max(waveAmpTarget, 22);
+    }
+  }
+  requestAnimationFrame(renderTelemetryWave);
+}
+renderTelemetryWave();
 
 window.addEventListener("mousemove", (e) => {
   const x = e.clientX;
@@ -31,18 +110,9 @@ window.addEventListener("mousemove", (e) => {
 
   coords.textContent = `X:${String(x).padStart(3, "0")} Y:${String(y).padStart(3, "0")}`;
 
-  bars.forEach((bar, i) => {
-    const wave = Math.abs(Math.sin((x + y + i * 25) * 0.02)) * 85 + 15;
-    bar.style.height = `${wave}%`;
-  });
+  waveAmpTarget = 24;
+  waveFreq = 0.03 + (x / window.innerWidth) * 0.045;
 });
-
-setInterval(() => {
-  bars.forEach((bar) => {
-    const randomH = Math.floor(Math.random() * 60) + 20;
-    bar.style.height = `${randomH}%`;
-  });
-}, 600);
 
 function bindCursorHover(elements) {
   elements.forEach((el) => {
@@ -300,52 +370,11 @@ if (copyHandleBtn) {
   });
 }
 
-// 12. Audio / Spotify Pop-Up Deck Controller
-const audioDeck = document.getElementById("audio-deck");
-const audioToggleBtn = document.getElementById("audio-toggle-btn");
-const deckCloseBtn = document.getElementById("deck-close-btn");
-const tabSpotify = document.getElementById("tab-spotify");
-const tabLocal = document.getElementById("tab-local");
-const panelSpotify = document.getElementById("panel-spotify");
-const panelLocal = document.getElementById("panel-local");
-
-audioToggleBtn.addEventListener("click", () => {
-  audioDeck.classList.toggle("hidden");
-});
-deckCloseBtn.addEventListener("click", () => {
-  audioDeck.classList.add("hidden");
-});
-
-tabSpotify.addEventListener("click", () => {
-  tabSpotify.classList.add("active");
-  tabLocal.classList.remove("active");
-  panelSpotify.style.display = "block";
-  panelLocal.style.display = "none";
-});
-
-tabLocal.addEventListener("click", () => {
-  tabLocal.classList.add("active");
-  tabSpotify.classList.remove("active");
-  panelLocal.style.display = "block";
-  panelSpotify.style.display = "none";
-});
-
+// 12. Inline Vinyl Audio Deck + Real-Time Beat Visualizer
 const localTracks = [
-  {
-    title: "[01/03] Gemu Fa Mi Re - Nyong Franco",
-    src: "assets/lagu1.mp3",
-    startTime: 0,
-  },
-  {
-    title: "[02/03] Poppin in the Club",
-    src: "assets/lagu2.mp3",
-    startTime: 0,
-  },
-  {
-    title: "[03/03] Mamacita - Adnan Veron",
-    src: "assets/lagu3.mp3",
-    startTime: 0,
-  },
+  { title: "[01/03] GEMU FA MI RE - NYONG FRANCO", src: "assets/lagu1.mp3" },
+  { title: "[02/03] Poppin In The Club", src: "assets/lagu2.mp3" },
+  { title: "[03/03] Mamacita - Adnan Veron", src: "assets/lagu3.mp3" },
 ];
 
 const localAudio = document.getElementById("local-audio");
@@ -353,59 +382,161 @@ const localTrackTitle = document.getElementById("local-track-title");
 const playPauseBtn = document.getElementById("play-pause-btn");
 const prevTrackBtn = document.getElementById("prev-track-btn");
 const nextTrackBtn = document.getElementById("next-track-btn");
+const vinylDisc = document.getElementById("vinyl-disc");
+const vinylArm = document.getElementById("vinyl-arm");
+const audioStateBadge = document.getElementById("audio-state-badge");
+const audioNavBtn = document.getElementById("audio-nav-btn");
 const signalStatus = document.getElementById("signal-status");
+const progressWrap = document.getElementById("audio-progress-wrap");
+const progressFill = document.getElementById("audio-progress-fill");
+const currentTimeEl = document.getElementById("audio-current-time");
+const durationEl = document.getElementById("audio-duration");
+
+// Web Audio API Beat Visualizer Setup
+const beatCanvas = document.getElementById("beat-canvas");
+const beatCtx = beatCanvas ? beatCanvas.getContext("2d") : null;
+let audioCtx = null;
+let analyser = null;
+let dataArray = null;
+
+function resizeBeatCanvas() {
+  if (!beatCanvas) return;
+  beatCanvas.width = beatCanvas.parentElement.clientWidth;
+  beatCanvas.height = beatCanvas.parentElement.clientHeight;
+}
+window.addEventListener("resize", resizeBeatCanvas);
+resizeBeatCanvas();
+
+function initAudioAnalyser() {
+  if (audioCtx) {
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return;
+  }
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return;
+
+  audioCtx = new AudioContextClass();
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 128;
+  analyser.smoothingTimeConstant = 0.8;
+
+  const source = audioCtx.createMediaElementSource(localAudio);
+  source.connect(analyser);
+  analyser.connect(audioCtx.destination);
+
+  dataArray = new Uint8Array(analyser.frequencyBinCount);
+}
+
+function renderBeatVisualizer() {
+  if (!beatCtx || !beatCanvas) return;
+  beatCtx.clearRect(0, 0, beatCanvas.width, beatCanvas.height);
+
+  if (analyser && dataArray && isLocalPlaying) {
+    analyser.getByteFrequencyData(dataArray);
+
+    const barCount = 42;
+    const gap = 4;
+    const barWidth = (beatCanvas.width - gap * (barCount - 1)) / barCount;
+
+    for (let i = 0; i < barCount; i++) {
+      const value = dataArray[i] || 0;
+      const percent = value / 255;
+      const barHeight = Math.max(4, percent * (beatCanvas.height * 0.88));
+      const x = i * (barWidth + gap);
+      const y = beatCanvas.height - barHeight;
+
+      beatCtx.fillStyle =
+        i < 12
+          ? `rgba(255, 59, 0, ${0.35 + percent * 0.55})`
+          : `rgba(197, 248, 42, ${0.28 + percent * 0.55})`;
+
+      beatCtx.fillRect(x, y, barWidth, barHeight);
+    }
+  } else {
+    beatCtx.fillStyle = "rgba(255, 59, 0, 0.2)";
+    beatCtx.fillRect(0, beatCanvas.height - 3, beatCanvas.width, 3);
+  }
+
+  requestAnimationFrame(renderBeatVisualizer);
+}
+renderBeatVisualizer();
 
 let trackIdx = 0;
-let isLocalPlaying = false;
+
+function formatTime(sec) {
+  if (!isFinite(sec)) return "00:00";
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function setPlayingVisuals(playing) {
+  isLocalPlaying = playing;
+  if (playing) {
+    playPauseBtn.textContent = "❚❚ PAUSE";
+    vinylDisc.classList.add("spinning");
+    vinylArm.classList.add("active");
+    audioStateBadge.textContent = "SPINNING // ON AIR";
+    audioStateBadge.style.color = "var(--acid)";
+    if (audioNavBtn) audioNavBtn.classList.add("playing");
+    if (signalStatus) signalStatus.textContent = "AUDIO ON";
+  } else {
+    playPauseBtn.textContent = "▶ PLAY DISC";
+    vinylDisc.classList.remove("spinning");
+    vinylArm.classList.remove("active");
+    audioStateBadge.textContent = "PAUSED";
+    audioStateBadge.style.color = "var(--accent)";
+    if (audioNavBtn) audioNavBtn.classList.remove("playing");
+    if (signalStatus) signalStatus.textContent = "LIVE SIGNAL";
+  }
+}
 
 function loadLocalTrack(index, autoPlay = false) {
   trackIdx = (index + localTracks.length) % localTracks.length;
   localAudio.src = localTracks[trackIdx].src;
-  localAudio.volume = 0.3;
+  localAudio.volume = 0.45;
   localTrackTitle.textContent = localTracks[trackIdx].title;
-
-  localAudio.addEventListener(
-    "loadedmetadata",
-    () => {
-      localAudio.currentTime = localTracks[trackIdx].startTime || 0;
-    },
-    { once: true },
-  );
+  progressFill.style.width = "0%";
+  currentTimeEl.textContent = "00:00";
 
   if (autoPlay) {
+    initAudioAnalyser();
     localAudio
       .play()
       .then(() => {
-        isLocalPlaying = true;
-        playPauseBtn.textContent = "❚❚ PAUSE";
-        audioToggleBtn.classList.add("playing");
-        signalStatus.textContent = "AUDIO ON";
+        setPlayingVisuals(true);
       })
-      .catch(() => {});
+      .catch(() => {
+        setPlayingVisuals(false);
+        localTrackTitle.textContent =
+          "FILE MP3 BELUM ADA: " + localTracks[trackIdx].src;
+      });
+  } else {
+    setPlayingVisuals(false);
   }
 }
 
 playPauseBtn.addEventListener("click", () => {
-  if (!localAudio.src) loadLocalTrack(trackIdx, false);
+  initAudioAnalyser();
+
+  if (!localAudio.getAttribute("src")) {
+    loadLocalTrack(trackIdx, false);
+  }
 
   if (!isLocalPlaying) {
     localAudio
       .play()
       .then(() => {
-        isLocalPlaying = true;
-        playPauseBtn.textContent = "❚❚ PAUSE";
-        audioToggleBtn.classList.add("playing");
-        signalStatus.textContent = "AUDIO ON";
+        setPlayingVisuals(true);
       })
       .catch(() => {
-        localTrackTitle.textContent = "FILE MP3 BELUM ADA";
+        setPlayingVisuals(false);
+        localTrackTitle.textContent =
+          "FILE MP3 BELUM ADA: " + localTracks[trackIdx].src;
       });
   } else {
     localAudio.pause();
-    isLocalPlaying = false;
-    playPauseBtn.textContent = "▶ PLAY";
-    audioToggleBtn.classList.remove("playing");
-    signalStatus.textContent = "LIVE SIGNAL";
+    setPlayingVisuals(false);
   }
 });
 
@@ -416,6 +547,25 @@ nextTrackBtn.addEventListener("click", () =>
   loadLocalTrack(trackIdx + 1, isLocalPlaying),
 );
 localAudio.addEventListener("ended", () => loadLocalTrack(trackIdx + 1, true));
+
+localAudio.addEventListener("loadedmetadata", () => {
+  durationEl.textContent = formatTime(localAudio.duration);
+});
+
+localAudio.addEventListener("timeupdate", () => {
+  currentTimeEl.textContent = formatTime(localAudio.currentTime);
+  if (localAudio.duration) {
+    const pct = (localAudio.currentTime / localAudio.duration) * 100;
+    progressFill.style.width = `${pct}%`;
+  }
+});
+
+progressWrap.addEventListener("click", (e) => {
+  if (!localAudio.duration) return;
+  const rect = progressWrap.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  localAudio.currentTime = ratio * localAudio.duration;
+});
 
 // 13. System Boot Opening + Starfield (Opening Only)
 const bootScreen = document.getElementById("boot-screen");
@@ -492,8 +642,8 @@ if (bootScreen) {
   });
 
   bootEnterBtn.addEventListener("click", () => {
-    if (audioDeck) audioDeck.classList.remove("hidden");
-
+    resizeTelemetryWave();
+    resizeBeatCanvas();
     gsap.to(bootScreen, {
       yPercent: -100,
       duration: 0.75,
